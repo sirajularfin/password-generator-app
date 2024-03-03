@@ -5,7 +5,7 @@ import {generateRandomNumber} from '../../utils/functions';
 /**
  * @summary Interface for password filters
  */
-type IPasswordFilters = {
+export type IPasswordFilters = {
 	includeLowercase: boolean;
 	includeNumbers: boolean;
 	includeSymbols: boolean;
@@ -37,12 +37,14 @@ const usePasswordGenerator = () => {
 	}, [passwordFilters]);
 
 	/**
-	 * @summary Generate password
+	 * @summary Generates a random password.
+	 * @description
+	 * It first creates a string of all possible characters based on the active filters.
+	 * Then, it generates a random password by selecting characters from the possible characters string randomly.
 	 * @returns {void}
 	 */
 	const generatePassword = (): void => {
-		let potentialPasswordCharacters = '';
-
+		let potentialPasswordCharacters: string = '';
 		if (passwordFilters.includeUppercase) {
 			potentialPasswordCharacters += POSSIBLE_CHARACTER.UPPERCASE;
 		}
@@ -59,12 +61,14 @@ const usePasswordGenerator = () => {
 			potentialPasswordCharacters += POSSIBLE_CHARACTER.SYMBOLS;
 		}
 
-		if (passwordFilters.passwordLength !== null) {
+		if (passwordFilters.passwordLength !== null && potentialPasswordCharacters.length > 0) {
+			let password: string = '';
 			for (let i = 0; i < passwordFilters.passwordLength; i++) {
 				const index = generateRandomNumber(0, potentialPasswordCharacters.length - 1);
 				const character = potentialPasswordCharacters[index];
-				setPassword(prev => prev + character);
+				password += character;
 			}
+			setPassword(password);
 		}
 	};
 
@@ -76,7 +80,6 @@ const usePasswordGenerator = () => {
 		const activeFiltersCount = Object.values(passwordFilters).filter(Boolean).length;
 
 		if (activeFiltersCount === 0) {
-			setErrorMessage('Please select at least one filter to generate a password.');
 			return false;
 		}
 
@@ -110,7 +113,7 @@ const usePasswordGenerator = () => {
 			includeNumbers: false,
 			includeSymbols: false,
 			includeUppercase: false,
-			passwordLength: 0,
+			passwordLength: null,
 		});
 	};
 
@@ -118,6 +121,7 @@ const usePasswordGenerator = () => {
 		errorMessage,
 		handleReset,
 		password,
+		passwordFilters,
 		setPasswordFilters,
 	};
 };
