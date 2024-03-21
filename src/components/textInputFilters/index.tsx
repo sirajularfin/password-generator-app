@@ -1,7 +1,6 @@
 import React from 'react';
 import {Text, TextInput, View} from 'react-native';
 import styles from './styles';
-import usePasswordGenerator from '../../screens/home/usePasswordGenerator';
 
 interface ITextInputFiltersProps {
   text: string;

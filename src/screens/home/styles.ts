@@ -4,7 +4,7 @@ import theme from '../../utils/theme/index';
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from '../../utils/constants';
 import sharedStyles from '../../utils/sharedStyles';
 
-const styles = () => {
+const styles = (password: string | null) => {
   return StyleSheet.create({
     container: {
       backgroundColor: theme.colors.primary[2],
@@ -35,7 +35,10 @@ const styles = () => {
     },
     button: {
       alignSelf: 'center',
-      backgroundColor: theme.colors.primary[1],
+      backgroundColor:
+        password !== null
+          ? theme.colors.primary[1]
+          : theme.colors.primary.disabled,
       borderRadius: 10,
       elevation: 5,
       marginVertical: verticalScale(30),

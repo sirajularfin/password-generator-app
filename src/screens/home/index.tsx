@@ -1,10 +1,10 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  Image,
   Pressable,
   ScrollView,
   Text,
   TextInput,
+  ToastAndroid,
   View,
 } from 'react-native';
 import styles from './styles';
@@ -12,7 +12,7 @@ import usePasswordGenerator from './usePasswordGenerator';
 import CustomizeText from '../../components/customizeText';
 import CheckboxFilters from '../../components/checkboxFilters';
 import TextInputFilters from '../../components/textInputFilters';
-import {Svg, SvgXml} from 'react-native-svg';
+import {SvgXml} from 'react-native-svg';
 import {resetIcon} from '../../assets/icons/reset';
 import {editIcon} from '../../assets/icons/edit';
 import {copyToClipboard} from '../../utils/functions';
@@ -23,23 +23,30 @@ const HomePage = () => {
     handleReset,
     password,
     passwordFilters,
+    setPassword,
     setPasswordFilters,
   } = usePasswordGenerator();
-  const classes = styles();
-  console.log(passwordFilters);
+  const classes = styles(password);
+  const [editable, setEditable] = useState<boolean>(false);
+  useEffect(() => {
+    if (errorMessage !== null) {
+      ToastAndroid.show(errorMessage, ToastAndroid.LONG);
+    }
+  }, [errorMessage]);
   return (
     <ScrollView style={classes.container}>
       <Text style={classes.headingH1}>
         Generate a secure, random and customized password.
       </Text>
       <View style={classes.display}>
-        <Text
-          ellipsizeMode="tail"
+        <TextInput
           numberOfLines={1}
-          style={classes.displayText}>
+          onChangeText={setPassword}
+          style={classes.displayText}
+          editable={editable}>
           {password}
-        </Text>
-        <Pressable onPress={() => console.log('Hello World')}>
+        </TextInput>
+        <Pressable onPress={() => setEditable(true)}>
           <SvgXml xml={editIcon} width="20" height="20" />
         </Pressable>
       </View>
@@ -47,7 +54,9 @@ const HomePage = () => {
         style={classes.button}
         onPress={() => {
           typeof password === 'string' && copyToClipboard(password);
-        }}>
+          setEditable(false);
+        }}
+        disabled={!password}>
         <Text style={classes.buttonText}>Copy Password</Text>
       </Pressable>
       <View style={classes.inlineComponent}>
@@ -96,11 +105,17 @@ const HomePage = () => {
       </View>
       <TextInputFilters
         text="How many digits?"
-        onChange={() => console.log('Hello World')}
+        onChange={(digits: number) =>
+          setPasswordFilters({...passwordFilters, numberOfDigits: digits})
+        }
+        value={passwordFilters.numberOfDigits?.toString()}
       />
       <TextInputFilters
         text="How many special characters?"
-        onChange={() => console.log('Hello World')}
+        onChange={(digits: number) =>
+          setPasswordFilters({...passwordFilters, numberOfSymbols: digits})
+        }
+        value={passwordFilters.numberOfSymbols?.toString()}
       />
     </ScrollView>
   );

@@ -6,12 +6,15 @@ import EncryptedStorage from 'react-native-encrypted-storage';
  * @param value - The value to be set.
  * @returns A promise that resolves when the value is set successfully, or rejects with an error.
  */
-export const setAsyncStorage = async (key: string, value: string): Promise<void> => {
-	try {
-		await EncryptedStorage.setItem(key, value);
-	} catch (error) {
-		console.error('Error saving data', error);
-	}
+export const setAsyncStorage = async (
+  key: string,
+  value: string,
+): Promise<void> => {
+  try {
+    await EncryptedStorage.setItem(key, value);
+  } catch (error) {
+    console.error('Error saving data', error);
+  }
 };
 
 /**
@@ -20,15 +23,15 @@ export const setAsyncStorage = async (key: string, value: string): Promise<void>
  * @returns A Promise that resolves to the retrieved value (string) if it exists, or null if it doesn't.
  */
 export const getAsyncStorage = async (key: string): Promise<string | null> => {
-	try {
-		const value = await EncryptedStorage.getItem(key);
-		if (value !== null) {
-			return value;
-		}
-	} catch (error) {
-		console.error('Error retrieving data', error);
-	}
-	return null;
+  try {
+    const value = await EncryptedStorage.getItem(key);
+    if (value !== null) {
+      return value;
+    }
+  } catch (error) {
+    console.error('Error retrieving data', error);
+  }
+  return null;
 };
 
 /**
@@ -37,11 +40,11 @@ export const getAsyncStorage = async (key: string): Promise<string | null> => {
  * @returns A Promise that resolves when the data is successfully removed, or rejects with an error if removal fails.
  */
 export const removeAsyncStorage = async (key: string): Promise<void> => {
-	try {
-		await EncryptedStorage.removeItem(key);
-	} catch (error) {
-		console.error('Error removing data', error);
-	}
+  try {
+    await EncryptedStorage.removeItem(key);
+  } catch (error) {
+    console.error('Error removing data', error);
+  }
 };
 
 /**
@@ -49,9 +52,9 @@ export const removeAsyncStorage = async (key: string): Promise<void> => {
  * @returns A promise that resolves when the storage is cleared.
  */
 export const clearAsyncStorage = async (): Promise<void> => {
-	try {
-		await EncryptedStorage.clear();
-	} catch (error) {
-		console.error('Error clearing data', error);
-	}
+  try {
+    await EncryptedStorage.clear();
+  } catch (error) {
+    console.error('Error clearing data', error);
+  }
 };

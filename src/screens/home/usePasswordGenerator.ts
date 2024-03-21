@@ -1,12 +1,9 @@
 import {useEffect, useState} from 'react';
+import {MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH} from '../../utils/constants';
 import {
-  MAX_PASSWORD_LENGTH,
-  MIN_PASSWORD_LENGTH,
-  POSSIBLE_CHARACTER,
-  STORAGE_PASSWORD_KEY,
-} from '../../utils/constants';
-import {generateRandomNumber} from '../../utils/functions';
-import {setAsyncStorage} from '../../utils/storage';
+  generateRandomNumber,
+  getPossibleCharacters,
+} from '../../utils/functions';
 
 /**
  * @summary Interface for password filters
@@ -17,6 +14,8 @@ export type IPasswordFilters = {
   includeSymbols: boolean;
   includeUppercase: boolean;
   passwordLength: number | null;
+  numberOfDigits: number | null;
+  numberOfSymbols: number | null;
 };
 
 /**
@@ -31,6 +30,8 @@ const usePasswordGenerator = () => {
     includeSymbols: false,
     includeUppercase: false,
     passwordLength: null,
+    numberOfDigits: null,
+    numberOfSymbols: null,
   });
 
   useEffect(() => {
@@ -48,39 +49,32 @@ const usePasswordGenerator = () => {
    * @returns {void}
    */
   const generatePassword = (): void => {
-    let potentialPasswordCharacters: string = '';
-    if (passwordFilters.includeUppercase) {
-      potentialPasswordCharacters += POSSIBLE_CHARACTER.UPPERCASE;
+    let password: string = '';
+    const {
+      includeLowercase,
+      includeUppercase,
+      includeSymbols,
+      includeNumbers,
+      passwordLength,
+    } = passwordFilters;
+
+    const possibleCharacters = getPossibleCharacters(
+      includeLowercase,
+      includeUppercase,
+      includeSymbols,
+      includeNumbers,
+    );
+
+    for (let i = 0; i < passwordLength!; i++) {
+      const randomCharacter =
+        possibleCharacters[
+          generateRandomNumber(0, possibleCharacters.length - 1)
+        ];
+      password +=
+        randomCharacter[generateRandomNumber(0, randomCharacter.length - 1)];
     }
 
-    if (passwordFilters.includeLowercase) {
-      potentialPasswordCharacters += POSSIBLE_CHARACTER.LOWERCASE;
-    }
-
-    if (passwordFilters.includeNumbers) {
-      potentialPasswordCharacters += POSSIBLE_CHARACTER.NUMBERS;
-    }
-
-    if (passwordFilters.includeSymbols) {
-      potentialPasswordCharacters += POSSIBLE_CHARACTER.SYMBOLS;
-    }
-
-    if (
-      passwordFilters.passwordLength !== null &&
-      potentialPasswordCharacters.length > 0
-    ) {
-      let password: string = '';
-      for (let i = 0; i < passwordFilters.passwordLength; i++) {
-        const index = generateRandomNumber(
-          0,
-          potentialPasswordCharacters.length - 1,
-        );
-        const character = potentialPasswordCharacters[index];
-        password += character;
-      }
-      setPassword(password);
-      setAsyncStorage(STORAGE_PASSWORD_KEY, password);
-    }
+    setPassword(password);
   };
 
   /**
@@ -88,17 +82,18 @@ const usePasswordGenerator = () => {
    * @returns {boolean}
    */
   const isPasswordGenerationPossible = (): boolean => {
+    const {passwordLength} = passwordFilters;
     const activeFiltersCount =
-      Object.values(passwordFilters).filter(Boolean).length;
+      Object.values(passwordFilters).filter(Boolean).length - 1;
 
-    if (activeFiltersCount === 0) {
+    if (activeFiltersCount === 0 || passwordLength === null) {
       return false;
     }
 
     if (
-      passwordFilters.passwordLength !== null &&
-      (passwordFilters.passwordLength < MIN_PASSWORD_LENGTH ||
-        passwordFilters.passwordLength > MAX_PASSWORD_LENGTH)
+      passwordLength !== null &&
+      (passwordLength < MIN_PASSWORD_LENGTH ||
+        passwordLength > MAX_PASSWORD_LENGTH)
     ) {
       setErrorMessage(
         `Please set a password length between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH}.`,
@@ -106,12 +101,9 @@ const usePasswordGenerator = () => {
       return false;
     }
 
-    if (
-      passwordFilters.passwordLength !== null &&
-      passwordFilters.passwordLength < activeFiltersCount
-    ) {
+    if (passwordLength !== null && passwordLength < activeFiltersCount) {
       setErrorMessage(
-        'The password length should not be less than the number of selected filters. Please adjust accordingly.',
+        'Password length should not be less than the number of selected filters.',
       );
       return false;
     }
@@ -131,6 +123,8 @@ const usePasswordGenerator = () => {
       includeSymbols: false,
       includeUppercase: false,
       passwordLength: null,
+      numberOfDigits: null,
+      numberOfSymbols: null,
     });
   };
 
@@ -139,6 +133,7 @@ const usePasswordGenerator = () => {
     handleReset,
     password,
     passwordFilters,
+    setPassword,
     setPasswordFilters,
   };
 };
